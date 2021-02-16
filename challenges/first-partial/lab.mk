@@ -13,5 +13,7 @@ test:
 	curl http://localhost:8000\?vertices=\(-3,1\),\(2,3\),\(0,0\),\(-1.5,-2.5\)
 	@echo Test 3 - 5 vertices shape
 	curl http://localhost:8000\?vertices=\(-3,1\),\(2,3\),\(0,0\),\(2,-3\),\(-1.5,-2.5\)
-	@echo Test 4 - 2 vertices shape
+	@echo Test 4 - 5 vertices shape
+	curl http://localhost:8000\?vertices=\(-3,1\),\(2,3\),\(-3,-4\),\(2,-3\),\(-1.5,-2.5\)
+	@echo Test 5 - 2 vertices shape
 	curl http://localhost:8000\?vertices=\(-3,1\),\(2,3\)

@@ -2,11 +2,7 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"net/http"
-	"strconv"
-	"math"
-	"strings"
+  "math"
 )
 
 // POINT
@@ -21,84 +17,32 @@ type Line struct {
 
 // MAIN
 func main() {
-	http.HandleFunc("/", handler)
-	log.Fatal(http.ListenAndServe("localhost:8000", nil))
-}
 
-// HANDLER
-// Handles the web request and reponds it
-func handler(w http.ResponseWriter, r *http.Request) {
+  // POINTS & LINES
+  var points []Point
+  var lines []Line
 
-	var vertices []Point
-	var lines []Line
+  points = []Point{
+    Point{-3, 1},
+    Point{2, 3},
+    Point{0, 0},
+    Point{-1.5, -2.5},
+    // Point{-3, 1},
+    // Point{2, 3},
+    // Point{-3, -4},
+    // Point{2, -3},
+    // Point{-1.5, -2.5},
+  }
+  fmt.Println(points)
 
-	for k, v := range r.URL.Query() {
-		if k == "vertices" {
-			points, err := generatePoints(v[0])
-			if err != nil {
-				fmt.Fprintf(w, fmt.Sprintf("error: %v", err))
-				return
-			}
-			vertices = points
-			break
-		}
-	}
+  collisions := areThereCollisions(points, lines)
+  perimeter := getPerimeter(points)
+  area := getArea(points)
 
-	// Results gathering
-	collisions := areThereCollisions(vertices, lines)
-	area := getArea(vertices)
-	perimeter := getPerimeter(vertices)
+  fmt.Printf("Collisions: %v \n", collisions)
+  fmt.Printf("Perimeter: %v \n", perimeter)
+  fmt.Printf("Area: %v \n", area)
 
-	// Logging in the server side
-	log.Printf("Received vertices array: %v", vertices)
-
-	// Response construction
-	response := fmt.Sprintf("Welcome to the Remote Shapes Analyzer\n")
-	response += fmt.Sprintf(" - Your figure has : [%v] vertices\n", len(vertices))
-
-	if len(vertices) < 3 {
-		response += fmt.Sprintf("ERROR - Your shape is not compliying with the minimum number of vertices.\n")
-	}
-
-	if collisions {
-		response += fmt.Sprintf("ERROR - Your shape has intersections on some of it's segments.\n")
-	}
-
-	if len(vertices) > 2 && collisions == false {
-		response += fmt.Sprintf(" - Vertices        : %v\n", vertices)
-		response += fmt.Sprintf(" - Perimeter       : %v\n", perimeter)
-		response += fmt.Sprintf(" - Area            : %v\n", area)
-	}
-
-	// Send response to client
-	fmt.Fprintf(w, response)
-}
-
-// GENERATE POINTS
-// Generate points array
-func generatePoints(s string) ([]Point, error) {
-
-	points := []Point{}
-
-	s = strings.Replace(s, "(", "", -1)
-	s = strings.Replace(s, ")", "", -1)
-	vals := strings.Split(s, ",")
-	if len(vals) < 2 {
-		return []Point{}, fmt.Errorf("Point [%v] was not well defined", s)
-	}
-
-	var x, y float64
-
-	for idx, val := range vals {
-
-		if idx%2 == 0 {
-			x, _ = strconv.ParseFloat(val, 64)
-		} else {
-			y, _ = strconv.ParseFloat(val, 64)
-			points = append(points, Point{x, y})
-		}
-	}
-	return points, nil
 }
 
 // ON SEGMENT
@@ -176,6 +120,8 @@ func areThereCollisions(points []Point, lines []Line) bool {
 
         if valO.P2 != valI.P1 && valO.P1 != valI.P2 {
           collisions = intersects(valO, valI)
+          //fmt.Printf("%v && ", valO)
+          //fmt.Printf("%v == %v \n", valI, collisions)
           if collisions == true { break }
         }
 
